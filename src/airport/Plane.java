@@ -23,7 +23,12 @@ public class Plane implements Runnable {
         this.gateManager = gateManager;
         this.refuelTruck = refuelTruck;
         this.stats = stats;
-        this.fuelLevel = 30 + rand.nextInt(71); // 30–100
+
+        if (id == 1 || id == 3 || id == 5) {
+            this.fuelLevel = 20 + rand.nextInt(15); // 20-35 (near emergency threshold)
+        } else {
+            this.fuelLevel = 70 + rand.nextInt(31); // 70-100 (safe range)
+        }
     }
 
     public String getName() { return "Plane-" + id; }
@@ -56,20 +61,17 @@ public class Plane implements Runnable {
         AirportLogger.log(getName(), "Docked at Gate " + gate.getGateId());
         simulate("Taxi to Gate " + gate.getGateId(), 100);
 
-        // MODIFIED: Handle passengers concurrently across planes
-        handlePassengersConcurrently();
+        handlePassengers();
 
         refuelTruck.refuel(this);
         simulate("Preparing for takeoff", 1000);
 
         gateManager.releaseGate(gate);
 
-        // Request runway for takeoff
-        atc.requestToLand(this, gateManager);
+        atc.requestToTakeoff(this);
         simulate("Takeoff", 1000);
         atc.releaseRunway(this);
 
-        gateManager.releaseGate(gate);
         stats.recordPlane(this);
         stats.recordPassengers(passengerCount);
     }
@@ -103,7 +105,7 @@ public class Plane implements Runnable {
         try { Thread.sleep(time + rand.nextInt(500)); } catch (InterruptedException ignored) {}
     }
 
-    private void handlePassengersConcurrently() {
+    private void handlePassengers() {
         // CountDownLatch to track when all 3 operations are done
         CountDownLatch latch = new CountDownLatch(3);
 

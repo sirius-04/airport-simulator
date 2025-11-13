@@ -63,6 +63,17 @@ public class GateManager {
         return false;
     }
 
+    public boolean allGatesEmpty() {
+        synchronized (gates) {
+            for (Gate g : gates) {
+                if (g.isOccupied()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
     public String getGateStatusSummary() {
         synchronized (gates) {
             StringBuilder sb = new StringBuilder("Gates: ");

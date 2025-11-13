@@ -32,6 +32,6 @@ public class Main {
         }
 
         System.out.println("\n=== Simulation End ===");
-        stats.printSummary();
+        stats.printSummary(gateManager);
     }
 }
